@@ -2,15 +2,15 @@
 <Project>
 	<!-- :3 -->
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<GamePath>E:\SteamLibrary\steamapps\common\Gorilla Tag</GamePath>
+		<GamePath>C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag</GamePath>
 		<GameAssemblyPath>$(GamePath)\Gorilla Tag_Data\Managed</GameAssemblyPath>
-		<MLAssemblyPath>$(GamePath)\MelonLoader\net35</MLAssemblyPath>
-		<ModsPath>$(GamePath)\Mods</ModsPath>
+		<BepInExAssemblyPath>$(GamePath)\BepInEx\core</BepInExAssemblyPath>
+		<PluginsPath>$(GamePath)\BepInEx\plugins</PluginsPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
-		<GamePath>E:\SteamLibrary\steamapps\common\Gorilla Tag</GamePath>
+		<GamePath>C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag</GamePath>
 		<GameAssemblyPath>$(GamePath)\Gorilla Tag_Data\Managed</GameAssemblyPath>
-		<MLAssemblyPath>$(GamePath)\MelonLoader\net35</MLAssemblyPath>
-		<ModsPath>$(GamePath)\Mods</ModsPath>
+		<BepInExAssemblyPath>$(GamePath)\BepInEx\core</BepInExAssemblyPath>
+		<PluginsPath>$(GamePath)\BepInEx\plugins</PluginsPath>
 	</PropertyGroup>
 </Project>

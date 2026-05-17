@@ -1,35 +1,28 @@
-﻿using MelonLoader;
-using GorillaNetworking;
-using HarmonyLib;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
-using UnityEngine.XR;
-using Valve.VR;
-using System;
-using MelonLoader.Utils;
-using OldHoldables;
+using BepInEx;
+using BepInEx.Configuration;
 
-[assembly: MelonInfo(typeof(OldHoldables.Plugin), PluginInfo.Name, PluginInfo.Version, PluginInfo.Author)]
-[assembly: MelonGame("Another Axiom", "Gorilla Tag")]
 namespace OldHoldables
 {
-    public class Plugin : MelonMod
+    [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
+    public class Plugin : BaseUnityPlugin
     {
-        public static new MelonPreferences_Category Config;
-        public static MelonPreferences_Entry<bool> disableDropping;
-        
-        public override void OnInitializeMelon()
-        {
-            Config = MelonPreferences.CreateCategory("OldHoldables");
+        internal static ConfigEntry<bool> disableDropping;
 
-            string configPath = Path.Combine(MelonEnvironment.UserDataDirectory, "OldHoldables.cfg");
-            Config.SetFilePath(configPath);
-            Config.LoadFromFile();
-            
-            disableDropping = Config.CreateEntry("disableDropping", false, "Disable Dropping", "Turn off manual dropping altogether. Not recommended, but may be needed for Index controllers");
-            
+        private void Awake()
+        {
+            disableDropping = Config.Bind(
+                "General",
+                "disableDropping",
+                false,
+                "Turn off manual dropping altogether. Not recommended, but may be needed for Index controllers"
+            );
+
+            string configPath = Path.Combine(Paths.ConfigPath, "OldHoldables.cfg");
+
             GameObject root = new GameObject(PluginInfo.Name);
-            UnityEngine.Object.DontDestroyOnLoad(root);
+            DontDestroyOnLoad(root);
             root.AddComponent<OHManager>();
         }
     }
