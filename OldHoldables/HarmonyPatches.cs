@@ -13,6 +13,7 @@ namespace OldHoldables
         private static HarmonyLib.Harmony instance;
 
         public static bool IsPatched { get; private set; }
+        public const string InstanceId = PluginInfo.GUID;
 
         internal static void RemoveHarmonyPatches()
         {
@@ -20,6 +21,21 @@ namespace OldHoldables
             {
                 instance.UnpatchSelf();
                 IsPatched = false;
+            }
+        }
+        
+        
+        internal static void ApplyHarmonyPatches()
+        {
+            if (!IsPatched)
+            {
+                if (instance == null)
+                {
+                    instance = new Harmony(InstanceId);
+                }
+
+                instance.PatchAll(Assembly.GetExecutingAssembly());
+                IsPatched = true;
             }
         }
 

@@ -1,29 +1,65 @@
-﻿using System.IO;
-using UnityEngine;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
+using GorillaNetworking;
+using HarmonyLib;
+using System.IO;
+using UnityEngine;
+using UnityEngine.XR;
+using Valve.VR;
+using System;
 
 namespace OldHoldables
 {
     [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
     public class Plugin : BaseUnityPlugin
     {
-        internal static ConfigEntry<bool> disableDropping;
+        static ConfigEntry<bool> disableDropping;
+        bool IsSteamVR;
+        bool initialized = false;
 
-        private void Awake()
+        void Awake()
         {
-            disableDropping = Config.Bind(
-                "General",
-                "disableDropping",
-                false,
-                "Turn off manual dropping altogether. Not recommended, but may be needed for Index controllers"
-            );
+            GorillaTagger.OnPlayerSpawned(GameInitialized);
+        }
 
-            string configPath = Path.Combine(Paths.ConfigPath, "OldHoldables.cfg");
+        void GameInitialized()
+        {
+            IsSteamVR = Traverse.Create(PlayFabAuthenticator.instance).Field("platform").GetValue().ToString().ToLower() == "steam";
+            initialized = true;
+        }
 
-            GameObject root = new GameObject(PluginInfo.Name);
-            DontDestroyOnLoad(root);
-            root.AddComponent<OHManager>();
+        void OnEnable()
+        {
+            HarmonyPatches.ApplyHarmonyPatches();
+            disableDropping = Config.Bind("Input", "DisableDropping", false, "Turn off manual dropping altogether. Not recommended, but may be needed for Index controllers");
+        }
+
+        void OnDisable() => HarmonyPatches.RemoveHarmonyPatches();
+
+        public static bool RightStickClick = false;
+        private float DropTime;
+
+        void LateUpdate()
+        {
+            if (!initialized) return;
+            
+            if (IsSteamVR)
+                RightStickClick = SteamVR_Actions.gorillaTag_RightJoystickClick.GetState(SteamVR_Input_Sources.RightHand);
+            else
+                ControllerInputPoller.instance.rightControllerDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out RightStickClick);
+
+            if (!disableDropping.Value)
+            {
+                if (RightStickClick && (DropTime + 3) < Time.time) { DropManually(); }
+            }
+        }
+        void DropManually()
+        {
+            HarmonyPatches.SetGoingToChange = true;
+            EquipmentInteractor.instance.ReleaseLeftHand();
+            EquipmentInteractor.instance.ReleaseRightHand();
+            HarmonyPatches.SetGoingToChange = false;
+            DropTime = Time.time;
         }
     }
 }
